@@ -20,7 +20,12 @@ def login():
     clubs = get_clubs()
     email = request.form["email"]
 
-    club = [item for item in clubs if item["email"] == email][0]
+    matching_clubs = [item for item in clubs if item["email"] == email]
+    if not matching_clubs:
+        flash("Sorry, that email was not found.")
+        return redirect(url_for("index"))
+
+    club = matching_clubs[0]
     session["club"] = club
 
     return redirect(url_for("summary"))
