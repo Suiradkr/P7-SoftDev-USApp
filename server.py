@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
 
 from provider import get_clubs, get_competitions
 
@@ -71,7 +71,17 @@ def book_spots():
     competition = matching_comps[0]
 
     spots_required = int(request.form["spots"])
+
+    if spots_required <= 0:
+        flash("You must book at least one spot.")
+        return redirect(url_for("summary"))
+
+    if spots_required > int(club["points"]):
+        abort(403)
+
     competition["spotsAvailable"] = int(competition["spotsAvailable"]) - spots_required
+    club["points"] = int(club["points"]) - spots_required
+    session["club"] = club  # persist the new balance for later requests
     flash("Great-booking complete!")
     return render_template("welcome.html", club=club, competitions=competitions)
 
