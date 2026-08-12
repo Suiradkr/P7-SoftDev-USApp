@@ -22,3 +22,16 @@ def test_login():
         assert resp.status_code == 200
         # The email of the user logged in is displayed on the page
         assert "john@simplylift.co" in resp.data.decode()
+
+
+def test_login_unknown_email():
+    """An unknown email should not crash; it returns to the homepage with a message"""
+    with app.test_client() as c:
+        resp = c.post(
+            "/login", data={"email": "nobody@example.com"}, follow_redirects=True
+        )
+        # We should be back on the homepage, not crashed (no 500)
+        assert request.path == "/"
+        assert resp.status_code == 200
+        # The error message is shown to the user
+        assert "Sorry, that email was not found." in resp.data.decode()

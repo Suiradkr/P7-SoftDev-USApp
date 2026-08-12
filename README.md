@@ -15,9 +15,10 @@ This project uses the following technologies:
 
 ### Installation
 
-- Clone the repository and create a new virtual (`python -m venv <VENV_FOLDER>`)
+- Clone the repository and create a new virtual (```python -m venv <VENV_FOLDER>```)
 
-- Make sure the virtual environment you created is active
+- Make sure the virtual environment you created is active ```source <VENV_FOLDER>/bin/activate```
+
 
 - Install the requirements based on the `requirements.txt` file: `pip install -r requirements.txt`
 
@@ -34,3 +35,27 @@ The app is powered by [JSON files](https://www.tutorialspoint.com/json/json_quic
 
 The project uses [pytest](https://docs.pytest.org/). You should also use [coverage](https://coverage.readthedocs.io/) to create a coverage report.
 
+Make sure your virtual environment is active and the testing tools are installed:
+
+```
+pip install pytest coverage
+```
+
+To run the tests:
+
+```
+python -m pytest
+```
+
+Add `-v` for the name of each test as it runs:
+
+```
+python -m pytest -v
+```
+
+To run the tests with a coverage report:
+
+```
+python -m coverage run -m pytest
+python -m coverage report
+```
