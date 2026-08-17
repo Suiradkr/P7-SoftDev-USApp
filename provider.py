@@ -12,11 +12,18 @@ def _json_from_file(filename, key):
         return data[key]
 
 
+# Load the data once at startup and keep it in memory. Views mutate these
+# same list objects (e.g. deducting booked spots), so changes persist across
+# requests for the lifetime of the process.
+_clubs = _json_from_file("clubs.json", "clubs")
+_competitions = _json_from_file("competitions.json", "competitions")
+
+
 def get_clubs():
-    """Load clubs from JSON"""
-    return _json_from_file("clubs.json", "clubs")
+    """Return the in-memory list of clubs"""
+    return _clubs
 
 
 def get_competitions():
-    """Load competitions from JSON"""
-    return _json_from_file("competitions.json", "competitions")
+    """Return the in-memory list of competitions"""
+    return _competitions

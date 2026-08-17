@@ -25,14 +25,11 @@ def test_login():
 
 
 def test_login_unknown_email():
-    """An unknown email should not crash; it returns to the homepage with a message"""
+    """An unknown email is rejected with HTTP 401 and an error message"""
     with app.test_client() as c:
-        resp = c.post(
-            "/login", data={"email": "nobody@example.com"}, follow_redirects=True
-        )
-        # We should be back on the homepage, not crashed (no 500)
-        assert request.path == "/"
-        assert resp.status_code == 200
+        resp = c.post("/login", data={"email": "nobody@example.com"})
+        # Unauthorized, not crashed (no 500)
+        assert resp.status_code == 401
         # The error message is shown to the user
         assert "Sorry, that email was not found." in resp.data.decode()
 
