@@ -57,6 +57,29 @@ def test_valid_booking_deducts_points():
         assert "Points available: 2" in resp.data.decode()
 
 
+def test_booking_more_than_twelve_spots_is_forbidden():
+    """A club cannot book more than 12 spots in a competition (HTTP 403)"""
+    with app.test_client() as c:
+        # Simply Lift has 13 points, so points are not the limiting factor here
+        c.post("/login", data={"email": "john@simplylift.co"})
+        resp = c.post(
+            "/book", data={"competition": "Spring Festival", "spots": "13"}
+        )
+        assert resp.status_code == 403
+
+
+def test_booking_exactly_twelve_spots_is_allowed():
+    """Booking the maximum of 12 spots is still permitted"""
+    with app.test_client() as c:
+        # Simply Lift has 13 points, enough to book 12 spots
+        c.post("/login", data={"email": "john@simplylift.co"})
+        resp = c.post(
+            "/book", data={"competition": "Spring Festival", "spots": "12"}
+        )
+        assert resp.status_code == 200
+        assert "Points available: 1" in resp.data.decode()
+
+
 def test_booking_zero_or_negative_spots_is_rejected():
     """Booking zero or negative spots is rejected without changing points"""
     with app.test_client() as c:

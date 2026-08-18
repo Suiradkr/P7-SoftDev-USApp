@@ -6,6 +6,9 @@ app = Flask(__name__)
 # You should change the secret key in production!
 app.secret_key = "something_special"
 
+# A club may enter at most 12 athletes in any one competition
+MAX_SPOTS_PER_COMPETITION = 12
+
 
 @app.route("/")
 def index():
@@ -75,6 +78,9 @@ def book_spots():
     if spots_required <= 0:
         flash("You must book at least one spot.")
         return redirect(url_for("summary"))
+
+    if spots_required > MAX_SPOTS_PER_COMPETITION:
+        abort(403)
 
     if spots_required > int(club["points"]):
         abort(403)
