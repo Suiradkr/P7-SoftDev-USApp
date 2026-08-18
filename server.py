@@ -31,6 +31,12 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/clubs")
+def clubs_board():
+    """Public board listing every club and its available points (no login needed)"""
+    return render_template("clubs.html", clubs=get_clubs())
+
+
 @app.route("/login", methods=["POST"])
 def login():
     """Use the session object to store the club information across requests"""

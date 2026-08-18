@@ -34,6 +34,29 @@ def test_login_unknown_email():
         assert "Sorry, that email was not found." in resp.data.decode()
 
 
+def test_points_board_is_public():
+    """Any user, even not logged in, can see every club and its points"""
+    with app.test_client() as c:
+        resp = c.get("/clubs")
+        assert resp.status_code == 200
+        page = resp.data.decode()
+        # Every club from the mock data is listed with its points
+        for name, points in [
+            ("Simply Lift", "13"),
+            ("Iron Temple", "4"),
+            ("She Lifts", "12"),
+        ]:
+            assert name in page
+            assert points in page
+
+
+def test_points_board_linked_from_homepage():
+    """The homepage links to the public points board"""
+    with app.test_client() as c:
+        resp = c.get("/")
+        assert "/clubs" in resp.data.decode()
+
+
 def test_booking_more_than_points_is_forbidden():
     """Booking more spots than the club has points returns HTTP 403"""
     with app.test_client() as c:
