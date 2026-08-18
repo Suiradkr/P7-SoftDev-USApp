@@ -19,7 +19,9 @@ Points available: {{club['points']}}
         {{comp['name']}}<br />
         Date: {{comp['date']}}</br>
         Number of spots available: {{comp['spotsAvailable']}}
-        {% if comp['spotsAvailable']|int >0 %}
+        {% if is_in_past(comp) %}
+        <em>This competition has already taken place.</em>
+        {% elif comp['spotsAvailable']|int >0 %}
         <a href="{{ url_for('book',competition=comp['name']) }}">Book spots</a>
         {% endif %}
     </li>

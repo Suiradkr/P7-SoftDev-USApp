@@ -1,4 +1,13 @@
+from datetime import datetime, timedelta
+
 import pytest
+
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+# Dates are computed relative to "now" so the fixtures never go stale:
+# "Spring Festival" is always upcoming and "Fall Classic" always in the past.
+FUTURE_DATE = (datetime.now() + timedelta(days=365)).strftime(DATE_FORMAT)
+PAST_DATE = (datetime.now() - timedelta(days=365)).strftime(DATE_FORMAT)
 
 
 def mock_clubs():
@@ -15,12 +24,12 @@ def mock_competitions():
     return [
         {
             "name": "Spring Festival",
-            "date": "2020-03-27 10:00:00",
+            "date": FUTURE_DATE,
             "spotsAvailable": "25",
         },
         {
             "name": "Fall Classic",
-            "date": "2020-10-22 13:30:00",
+            "date": PAST_DATE,
             "spotsAvailable": "13",
         },
     ]
