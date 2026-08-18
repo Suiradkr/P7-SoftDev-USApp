@@ -23,7 +23,7 @@ def login():
     matching_clubs = [item for item in clubs if item["email"] == email]
     if not matching_clubs:
         flash("Sorry, that email was not found.")
-        return redirect(url_for("index"))
+        return render_template("index.html"), 401
 
     club = matching_clubs[0]
     session["club"] = club
