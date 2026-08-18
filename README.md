@@ -38,7 +38,7 @@ The project uses [pytest](https://docs.pytest.org/). You should also use [covera
 Make sure your virtual environment is active and the testing tools are installed:
 
 ```
-pip install pytest coverage
+pip install pytest coverage flake8
 ```
 
 To run the tests:
@@ -59,3 +59,22 @@ To run the tests with a coverage report:
 python -m coverage run -m pytest
 python -m coverage report
 ```
+
+We aim to keep coverage above 80%.
+
+### Code style
+
+The Python code is PEP 8 compliant and checked with
+[Flake8](https://flake8.pycqa.org/). The project's settings (line length and
+excluded folders) live in `setup.cfg`.
+
+```
+python -m flake8
+```
+
+### Branch naming
+
+Work never lands directly on `main`. Create a branch named
+`<feature/bug/enhancement>/<issue-number>-<description>`, for example
+`bug/4-book-in-past-competitions`. When the tests pass, the branch is merged
+into the `QA` branch for code review.
