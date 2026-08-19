@@ -35,11 +35,9 @@ The app is powered by [JSON files](https://www.tutorialspoint.com/json/json_quic
 
 The project uses [pytest](https://docs.pytest.org/). You should also use [coverage](https://coverage.readthedocs.io/) to create a coverage report.
 
-Make sure your virtual environment is active and the testing tools are installed:
-
-```
-pip install pytest coverage flake8
-```
+pytest, coverage and Flake8 are listed in `requirements.txt`, so the
+installation step above already provides them. Make sure your virtual
+environment is active.
 
 To run the tests:
 
@@ -68,8 +66,34 @@ The Python code is PEP 8 compliant and checked with
 [Flake8](https://flake8.pycqa.org/). The project's settings (line length and
 excluded folders) live in `setup.cfg`.
 
+To check the whole project:
+
 ```
 python -m flake8
+```
+
+#### HTML report
+
+The `flake8-html` plugin writes a browsable report, one page per file with
+the source shown alongside each violation:
+
+```
+python -m flake8 --format=html --htmldir=flake-report
+```
+
+Then open `flake-report/index.html` in a browser. This is easier to work
+through than terminal output when there is a lot to fix, and it is the report
+to screenshot when one is asked for.
+
+The folder is listed in `.gitignore`, so the report is never committed.
+
+Note that the plugin does not clear the folder between runs: pages for files
+that have since been fixed are left behind, even though `index.html` itself is
+rewritten correctly. Delete the folder first if you want the report to reflect
+only the current state.
+
+```
+rm -rf flake-report && python -m flake8 --format=html --htmldir=flake-report
 ```
 
 ### Branch naming
