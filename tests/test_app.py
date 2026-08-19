@@ -1,3 +1,4 @@
+import pytest
 from flask import request
 
 from server import app
@@ -246,3 +247,20 @@ def test_booking_form_only_accepts_whole_numbers():
         # Bounded by the club's remaining allowance
         assert 'min="1"' in page
         assert 'max="12"' in page
+
+
+@pytest.mark.parametrize("value", ["abc", "", "3.5", "1e3"])
+def test_non_numeric_spots_is_rejected(value):
+    """A spots value that is not a whole number is rejected, not a 500"""
+    with app.test_client() as c:
+        # Simply Lift has 13 points
+        c.post("/login", data={"email": "john@simplylift.co"})
+        resp = c.post(
+            "/book",
+            data={"competition": "Spring Festival", "spots": value},
+            follow_redirects=True,
+        )
+        assert resp.status_code == 200
+        assert "Please enter a whole number of spots." in resp.data.decode()
+        # Nothing was booked, so the points are untouched
+        assert "Points available: 13" in resp.data.decode()

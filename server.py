@@ -125,7 +125,11 @@ def book_spots():
     if is_in_past(competition):
         abort(403)
 
-    spots_required = int(request.form["spots"])
+    try:
+        spots_required = int(request.form["spots"])
+    except ValueError:
+        flash("Please enter a whole number of spots.")
+        return redirect(url_for("summary"))
 
     if spots_required <= 0:
         flash("You must book at least one spot.")
