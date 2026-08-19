@@ -204,3 +204,31 @@ def test_logout_clears_the_session():
         # The club is no longer held in the session
         with c.session_transaction() as sess:
             assert "club" not in sess
+
+
+def test_twelve_spot_limit_is_cumulative_per_competition():
+    """Repeat bookings cannot take a club past 12 spots in one competition"""
+    with app.test_client() as c:
+        # Simply Lift has 13 points, so points alone would allow a 13th spot
+        c.post("/login", data={"email": "john@simplylift.co"})
+        first = c.post(
+            "/book", data={"competition": "Spring Festival", "spots": "12"}
+        )
+        assert first.status_code == 200
+        # The 13th spot would take the running total past the cap
+        second = c.post(
+            "/book", data={"competition": "Spring Festival", "spots": "1"}
+        )
+        assert second.status_code == 403
+
+
+def test_twelve_spot_limit_is_tracked_per_competition():
+    """Spots booked in one competition do not count against another"""
+    with app.test_client() as c:
+        c.post("/login", data={"email": "john@simplylift.co"})
+        c.post("/book", data={"competition": "Spring Festival", "spots": "12"})
+        # A different competition still has the club's full allowance
+        resp = c.post(
+            "/book", data={"competition": "Sold Out Sprint", "spots": "1"}
+        )
+        assert resp.status_code == 200

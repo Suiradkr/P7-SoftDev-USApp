@@ -27,3 +27,25 @@ def get_clubs():
 def get_competitions():
     """Return the in-memory list of competitions"""
     return _competitions
+
+
+# Spots each club has already booked in each competition, keyed by
+# (club name, competition name). Held in memory like the data above, so it
+# lasts for the lifetime of the process.
+_bookings = {}
+
+
+def get_booked_spots(club_name, competition_name):
+    """How many spots this club has already booked in this competition"""
+    return _bookings.get((club_name, competition_name), 0)
+
+
+def record_booking(club_name, competition_name, spots):
+    """Add spots to this club's running total for the competition"""
+    key = (club_name, competition_name)
+    _bookings[key] = _bookings.get(key, 0) + spots
+
+
+def reset_bookings():
+    """Forget every recorded booking (used to isolate tests)"""
+    _bookings.clear()
