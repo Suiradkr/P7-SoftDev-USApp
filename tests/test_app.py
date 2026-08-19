@@ -232,3 +232,17 @@ def test_twelve_spot_limit_is_tracked_per_competition():
             "/book", data={"competition": "Sold Out Sprint", "spots": "1"}
         )
         assert resp.status_code == 200
+
+
+def test_booking_form_only_accepts_whole_numbers():
+    """The spots input constrains entry to a whole number within the allowance"""
+    with app.test_client() as c:
+        c.post("/login", data={"email": "john@simplylift.co"})
+        page = c.get("/book/Spring Festival").data.decode()
+        # A number field, whole steps only, and no empty submission
+        assert 'type="number"' in page
+        assert 'step="1"' in page
+        assert "required" in page
+        # Bounded by the club's remaining allowance
+        assert 'min="1"' in page
+        assert 'max="12"' in page

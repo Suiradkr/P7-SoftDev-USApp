@@ -8,7 +8,8 @@
 <form action="/book" method="post">
     <input type="hidden" name="competition" value="{{competition['name']}}">
     <label for="spots">How many spots? (you have {{ spots_remaining }} left for this competition)</label>
-    <input type="number" name="spots" id="input-spots" min="1" max="{{ spots_remaining }}" />
+    <input type="number" name="spots" id="input-spots" min="1" max="{{ spots_remaining }}"
+        step="1" required />
     <button type="submit">Book</button>
 </form>
 {% endblock %}
