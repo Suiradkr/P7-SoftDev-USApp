@@ -22,6 +22,8 @@ def test_login():
         assert resp.status_code == 200
         # The email of the user logged in is displayed on the page
         assert "john@simplylift.co" in resp.data.decode()
+        # ...along with the number of points available for their club
+        assert "Points available: 13" in resp.data.decode()
 
 
 def test_login_unknown_email():
@@ -78,6 +80,8 @@ def test_valid_booking_deducts_points():
         )
         assert resp.status_code == 200
         assert "Points available: 2" in resp.data.decode()
+        # The competition loses the same number of spots (25 -> 23)
+        assert "Number of spots available: 23" in resp.data.decode()
 
 
 def test_booking_more_than_twelve_spots_is_forbidden():
@@ -175,3 +179,28 @@ def test_booking_exactly_the_available_spots_is_allowed():
         )
         assert resp.status_code == 200
         assert "Number of spots available: 0" in resp.data.decode()
+
+
+def test_booking_page_displays_the_form():
+    """A logged in user opening a competition sees the booking form"""
+    with app.test_client() as c:
+        c.post("/login", data={"email": "john@simplylift.co"})
+        resp = c.get("/book/Spring Festival")
+        assert resp.status_code == 200
+        page = resp.data.decode()
+        assert "Spring Festival" in page
+        # The form and its spots input are present
+        assert 'name="spots"' in page
+        assert 'action="/book"' in page
+
+
+def test_logout_clears_the_session():
+    """Logging out ends the session and returns the user to the homepage"""
+    with app.test_client() as c:
+        c.post("/login", data={"email": "john@simplylift.co"})
+        resp = c.get("/logout", follow_redirects=True)
+        assert resp.status_code == 200
+        assert "Please enter your secretary email" in resp.data.decode()
+        # The club is no longer held in the session
+        with c.session_transaction() as sess:
+            assert "club" not in sess
