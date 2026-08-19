@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Clubs points board</h1>
+<p>Points available for every club registered on the platform.</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Club</th>
+            <th scope="col">Points available</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for club in clubs %}
+        <tr>
+            <td>{{ club['name'] }}</td>
+            <td>{{ club['points'] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('index') }}">Back to the homepage</a>
+{% endblock %}
