@@ -1,6 +1,15 @@
 from datetime import datetime
 
-from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
+from flask import (
+    Flask,
+    abort,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
 from provider import get_clubs, get_competitions
 
