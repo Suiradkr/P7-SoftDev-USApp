@@ -39,6 +39,22 @@ def is_in_past(competition):
 app.jinja_env.globals["is_in_past"] = is_in_past
 
 
+def current_club():
+    """The logged in club, resolved from the shared data on every request.
+
+    The session stores only the email, so the club's points have a single
+    source of truth. Holding a copy in the session meant a booking updated
+    that copy and left the shared record untouched.
+    """
+    email = session["club_email"]
+    matching = [club for club in get_clubs() if club["email"] == email]
+
+    if not matching:
+        abort(401)
+
+    return matching[0]
+
+
 @app.route("/")
 def index():
     """Homepage"""
@@ -63,8 +79,7 @@ def login():
         flash("Sorry, that email was not found.")
         return render_template("index.html"), 401
 
-    club = matching_clubs[0]
-    session["club"] = club
+    session["club_email"] = matching_clubs[0]["email"]
 
     return redirect(url_for("summary"))
 
@@ -73,7 +88,7 @@ def login():
 def summary():
     """Custom "homepage" for logged in users"""
 
-    club = session["club"]
+    club = current_club()
     competitions = get_competitions()
 
     return render_template("welcome.html", club=club, competitions=competitions)
@@ -82,7 +97,7 @@ def summary():
 @app.route("/book/<competition>")
 def book(competition):
     """Book spots in a competition page"""
-    club = session["club"]
+    club = current_club()
 
     competitions = get_competitions()
     matching_comps = [comp for comp in competitions if comp["name"] == competition]
@@ -110,7 +125,7 @@ def book(competition):
 @app.route("/book", methods=["POST"])
 def book_spots():
     """This page is only accessible through a POST request (form validation)"""
-    club = session["club"]
+    club = current_club()
     competitions = get_competitions()
 
     matching_comps = [
@@ -148,7 +163,6 @@ def book_spots():
 
     competition["spotsAvailable"] = int(competition["spotsAvailable"]) - spots_required
     club["points"] = int(club["points"]) - spots_required
-    session["club"] = club  # persist the new balance for later requests
     record_booking(club["name"], competition["name"], spots_required)
     flash("Great-booking complete!")
     return render_template("welcome.html", club=club, competitions=competitions)
@@ -157,7 +171,7 @@ def book_spots():
 @app.route("/logout")
 def logout():
     """We delete session data in order to log the user out"""
-    del session["club"]
+    del session["club_email"]
     return redirect(url_for("index"))
 
 

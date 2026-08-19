@@ -12,8 +12,8 @@ FUTURE_DATE = (datetime.now() + timedelta(days=365)).strftime(DATE_FORMAT)
 PAST_DATE = (datetime.now() - timedelta(days=365)).strftime(DATE_FORMAT)
 
 
-def mock_clubs():
-    """Static data to mock clubs"""
+def build_clubs():
+    """Fresh club data for a single test"""
     return [
         {"name": "Simply Lift", "email": "john@simplylift.co", "points": "13"},
         {"name": "Iron Temple", "email": "admin@irontemple.com", "points": "4"},
@@ -21,8 +21,8 @@ def mock_clubs():
     ]
 
 
-def mock_competitions():
-    """Static data to mock competitions"""
+def build_competitions():
+    """Fresh competition data for a single test"""
     return [
         {
             "name": "Spring Festival",
@@ -49,9 +49,26 @@ def mock_data_provider(monkeypatch):
     This fixture will be automatically used in test functions.
 
     We patch `server.get_clubs`, because that's where the get_clubs function is used.
+    The provider's own functions are left alone, so tests/test_provider.py still
+    reads the real JSON files.
+
+    Each test gets its own data, but every call within a test returns the *same*
+    objects, mirroring the in-memory provider. Returning a fresh list per call
+    would silently discard whatever a booking wrote.
     """
 
-    monkeypatch.setattr("server.get_clubs", mock_clubs)
-    monkeypatch.setattr("server.get_competitions", mock_competitions)
+    clubs = build_clubs()
+    competitions = build_competitions()
+
+    def mock_get_clubs():
+        """Return the same club list for every call in this test"""
+        return clubs
+
+    def mock_get_competitions():
+        """Return the same competition list for every call in this test"""
+        return competitions
+
+    monkeypatch.setattr("server.get_clubs", mock_get_clubs)
+    monkeypatch.setattr("server.get_competitions", mock_get_competitions)
     # The booking ledger lives for the whole process, so clear it per test
     provider.reset_bookings()

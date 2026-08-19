@@ -264,3 +264,26 @@ def test_non_numeric_spots_is_rejected(value):
         assert "Please enter a whole number of spots." in resp.data.decode()
         # Nothing was booked, so the points are untouched
         assert "Points available: 13" in resp.data.decode()
+
+
+def test_points_persist_across_a_re_login():
+    """A club's points survive logging out and logging back in"""
+    with app.test_client() as c:
+        # Simply Lift starts with 13 points
+        c.post("/login", data={"email": "john@simplylift.co"})
+        c.post("/book", data={"competition": "Spring Festival", "spots": "2"})
+        c.get("/logout")
+
+        c.post("/login", data={"email": "john@simplylift.co"})
+        page = c.get("/summary").data.decode()
+        assert "Points available: 11" in page
+        # The competition's spots stayed reduced too, so the two agree
+        assert "Number of spots available: 23" in page
+
+
+def test_stale_session_is_rejected():
+    """A session naming a club that no longer exists cannot browse"""
+    with app.test_client() as c:
+        with c.session_transaction() as sess:
+            sess["club_email"] = "ghost@example.com"
+        assert c.get("/summary").status_code == 401
