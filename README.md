@@ -72,17 +72,6 @@ To check the whole project:
 python -m flake8
 ```
 
-Flake8 prints nothing when the code is clean, so no output is the result you
-want. It exits with status 1 when it finds something, which is what makes it
-usable in a CI step.
-
-Output on a file with problems looks like this:
-
-```
-server.py:1:1: F401 'os' imported but unused
-server.py:2:2: E225 missing whitespace around operator
-```
-
 #### HTML report
 
 The `flake8-html` plugin writes a browsable report, one page per file with
