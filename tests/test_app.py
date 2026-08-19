@@ -152,3 +152,26 @@ def test_booking_unknown_competition_returns_404():
             "/book", data={"competition": "Does Not Exist", "spots": "1"}
         )
         assert resp.status_code == 404
+
+
+def test_booking_more_spots_than_available_is_forbidden():
+    """A club cannot book more spots than the competition has left (HTTP 403)"""
+    with app.test_client() as c:
+        # Iron Temple has 4 points; "Sold Out Sprint" only has 3 spots left,
+        # so points and the 12-spot cap are not the limiting factor here.
+        c.post("/login", data={"email": "admin@irontemple.com"})
+        resp = c.post(
+            "/book", data={"competition": "Sold Out Sprint", "spots": "4"}
+        )
+        assert resp.status_code == 403
+
+
+def test_booking_exactly_the_available_spots_is_allowed():
+    """Booking every remaining spot is permitted and empties the competition"""
+    with app.test_client() as c:
+        c.post("/login", data={"email": "admin@irontemple.com"})
+        resp = c.post(
+            "/book", data={"competition": "Sold Out Sprint", "spots": "3"}
+        )
+        assert resp.status_code == 200
+        assert "Number of spots available: 0" in resp.data.decode()

@@ -32,6 +32,12 @@ def mock_competitions():
             "date": PAST_DATE,
             "spotsAvailable": "13",
         },
+        # Deliberately low capacity, to exercise the "not enough spots" guard
+        {
+            "name": "Sold Out Sprint",
+            "date": FUTURE_DATE,
+            "spotsAvailable": "3",
+        },
     ]
 
 

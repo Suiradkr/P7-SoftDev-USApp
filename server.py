@@ -123,6 +123,9 @@ def book_spots():
     if spots_required > int(club["points"]):
         abort(403)
 
+    if spots_required > int(competition["spotsAvailable"]):
+        abort(403)
+
     competition["spotsAvailable"] = int(competition["spotsAvailable"]) - spots_required
     club["points"] = int(club["points"]) - spots_required
     session["club"] = club  # persist the new balance for later requests
