@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
 
 from provider import get_clubs, get_competitions
@@ -8,6 +10,19 @@ app.secret_key = "something_special"
 
 # A club may enter at most 12 athletes in any one competition
 MAX_SPOTS_PER_COMPETITION = 12
+
+# Format used for competition dates in the JSON data
+COMPETITION_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+
+def is_in_past(competition):
+    """True if the competition's start date has already passed"""
+    starts_at = datetime.strptime(competition["date"], COMPETITION_DATE_FORMAT)
+    return starts_at < datetime.now()
+
+
+# Make the helper available to templates so past events can hide their book link
+app.jinja_env.globals["is_in_past"] = is_in_past
 
 
 @app.route("/")
@@ -54,6 +69,9 @@ def book(competition):
 
     found_competition = matching_comps[0]
 
+    if is_in_past(found_competition):
+        abort(403)
+
     if found_competition:
         return render_template("booking.html", club=club, competition=found_competition)
     else:
@@ -72,6 +90,9 @@ def book_spots():
     ]
 
     competition = matching_comps[0]
+
+    if is_in_past(competition):
+        abort(403)
 
     spots_required = int(request.form["spots"])
 

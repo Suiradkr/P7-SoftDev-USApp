@@ -80,6 +80,23 @@ def test_booking_exactly_twelve_spots_is_allowed():
         assert "Points available: 1" in resp.data.decode()
 
 
+def test_booking_past_competition_is_forbidden():
+    """A club cannot book spots in a competition that has already taken place"""
+    with app.test_client() as c:
+        # "Fall Classic" is dated in the past (see conftest)
+        c.post("/login", data={"email": "john@simplylift.co"})
+        resp = c.post("/book", data={"competition": "Fall Classic", "spots": "1"})
+        assert resp.status_code == 403
+
+
+def test_booking_page_for_past_competition_is_forbidden():
+    """The booking form itself is not reachable for a past competition"""
+    with app.test_client() as c:
+        c.post("/login", data={"email": "john@simplylift.co"})
+        resp = c.get("/book/Fall Classic")
+        assert resp.status_code == 403
+
+
 def test_booking_zero_or_negative_spots_is_rejected():
     """Booking zero or negative spots is rejected without changing points"""
     with app.test_client() as c:
