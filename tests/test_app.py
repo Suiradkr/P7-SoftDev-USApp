@@ -134,3 +134,21 @@ def test_booking_zero_or_negative_spots_is_rejected():
         assert "You must book at least one spot." in resp.data.decode()
         # Points are unchanged
         assert "Points available: 4" in resp.data.decode()
+
+
+def test_booking_page_for_unknown_competition_returns_404():
+    """The booking page for a competition that does not exist returns HTTP 404"""
+    with app.test_client() as c:
+        c.post("/login", data={"email": "john@simplylift.co"})
+        resp = c.get("/book/Does Not Exist")
+        assert resp.status_code == 404
+
+
+def test_booking_unknown_competition_returns_404():
+    """Posting a booking for an unknown competition returns HTTP 404"""
+    with app.test_client() as c:
+        c.post("/login", data={"email": "john@simplylift.co"})
+        resp = c.post(
+            "/book", data={"competition": "Does Not Exist", "spots": "1"}
+        )
+        assert resp.status_code == 404

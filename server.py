@@ -82,16 +82,15 @@ def book(competition):
     competitions = get_competitions()
     matching_comps = [comp for comp in competitions if comp["name"] == competition]
 
+    if not matching_comps:
+        abort(404)
+
     found_competition = matching_comps[0]
 
     if is_in_past(found_competition):
         abort(403)
 
-    if found_competition:
-        return render_template("booking.html", club=club, competition=found_competition)
-    else:
-        flash("Something went wrong-please try again")
-        return redirect(url_for("summary"))
+    return render_template("booking.html", club=club, competition=found_competition)
 
 
 @app.route("/book", methods=["POST"])
@@ -103,6 +102,9 @@ def book_spots():
     matching_comps = [
         comp for comp in competitions if comp["name"] == request.form["competition"]
     ]
+
+    if not matching_comps:
+        abort(404)
 
     competition = matching_comps[0]
 
