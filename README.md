@@ -35,11 +35,9 @@ The app is powered by [JSON files](https://www.tutorialspoint.com/json/json_quic
 
 The project uses [pytest](https://docs.pytest.org/). You should also use [coverage](https://coverage.readthedocs.io/) to create a coverage report.
 
-Make sure your virtual environment is active and the testing tools are installed:
-
-```
-pip install pytest coverage flake8
-```
+pytest, coverage and Flake8 are listed in `requirements.txt`, so the
+installation step above already provides them. Make sure your virtual
+environment is active.
 
 To run the tests:
 
@@ -68,8 +66,36 @@ The Python code is PEP 8 compliant and checked with
 [Flake8](https://flake8.pycqa.org/). The project's settings (line length and
 excluded folders) live in `setup.cfg`.
 
+To check the whole project:
+
 ```
 python -m flake8
+```
+
+Flake8 prints nothing when the code is clean, so no output is the result you
+want. It exits with status 1 when it finds something, which is what makes it
+usable in a CI step.
+
+For a report that counts each type of violation and gives a total:
+
+```
+python -m flake8 --statistics --count
+```
+
+To print the offending line under each violation, which is quicker to act on:
+
+```
+python -m flake8 --show-source
+```
+
+A report on a file with problems looks like this:
+
+```
+server.py:1:1: F401 'os' imported but unused
+server.py:2:2: E225 missing whitespace around operator
+1     E225 missing whitespace around operator
+1     F401 'os' imported but unused
+2
 ```
 
 ### Branch naming

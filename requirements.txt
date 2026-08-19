@@ -1,1 +1,7 @@
+# Runtime
 Flask>=2
+
+# Testing and QA tooling
+pytest>=8
+coverage>=7
+flake8>=7
