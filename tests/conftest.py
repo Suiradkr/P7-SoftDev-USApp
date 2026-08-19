@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 
 import pytest
 
+import provider
+
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 # Dates are computed relative to "now" so the fixtures never go stale:
@@ -51,3 +53,5 @@ def mock_data_provider(monkeypatch):
 
     monkeypatch.setattr("server.get_clubs", mock_clubs)
     monkeypatch.setattr("server.get_competitions", mock_competitions)
+    # The booking ledger lives for the whole process, so clear it per test
+    provider.reset_bookings()

@@ -11,7 +11,12 @@ from flask import (
     url_for,
 )
 
-from provider import get_clubs, get_competitions
+from provider import (
+    get_booked_spots,
+    get_clubs,
+    get_competitions,
+    record_booking,
+)
 
 app = Flask(__name__)
 # You should change the secret key in production!
@@ -90,7 +95,16 @@ def book(competition):
     if is_in_past(found_competition):
         abort(403)
 
-    return render_template("booking.html", club=club, competition=found_competition)
+    spots_remaining = MAX_SPOTS_PER_COMPETITION - get_booked_spots(
+        club["name"], found_competition["name"]
+    )
+
+    return render_template(
+        "booking.html",
+        club=club,
+        competition=found_competition,
+        spots_remaining=spots_remaining,
+    )
 
 
 @app.route("/book", methods=["POST"])
@@ -117,7 +131,9 @@ def book_spots():
         flash("You must book at least one spot.")
         return redirect(url_for("summary"))
 
-    if spots_required > MAX_SPOTS_PER_COMPETITION:
+    already_booked = get_booked_spots(club["name"], competition["name"])
+
+    if already_booked + spots_required > MAX_SPOTS_PER_COMPETITION:
         abort(403)
 
     if spots_required > int(club["points"]):
@@ -129,6 +145,7 @@ def book_spots():
     competition["spotsAvailable"] = int(competition["spotsAvailable"]) - spots_required
     club["points"] = int(club["points"]) - spots_required
     session["club"] = club  # persist the new balance for later requests
+    record_booking(club["name"], competition["name"], spots_required)
     flash("Great-booking complete!")
     return render_template("welcome.html", club=club, competitions=competitions)
 
