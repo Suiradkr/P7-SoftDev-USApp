@@ -4,6 +4,7 @@ from flask import (
     Flask,
     abort,
     flash,
+    make_response,
     redirect,
     render_template,
     request,
@@ -46,11 +47,14 @@ def current_club():
     source of truth. Holding a copy in the session meant a booking updated
     that copy and left the shared record untouched.
     """
-    email = session["club_email"]
+    email = session.get("club_email")
     matching = [club for club in get_clubs() if club["email"] == email]
 
     if not matching:
-        abort(401)
+        # No session at all, or one naming a club that has since gone. Both
+        # mean the same thing to the visitor, so both get the login form back.
+        flash("Please log in to continue.")
+        abort(make_response(render_template("index.html"), 401))
 
     return matching[0]
 

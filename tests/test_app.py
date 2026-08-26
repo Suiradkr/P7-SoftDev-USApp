@@ -287,3 +287,21 @@ def test_stale_session_is_rejected():
         with c.session_transaction() as sess:
             sess["club_email"] = "ghost@example.com"
         assert c.get("/summary").status_code == 401
+
+
+def test_logged_out_access_is_rejected():
+    """Reaching a logged in page without a session returns the login form"""
+    with app.test_client() as c:
+        for path in ("/summary", "/book/Spring Festival"):
+            resp = c.get(path)
+            assert resp.status_code == 401, path
+            assert "Please enter your secretary email" in resp.data.decode()
+
+
+def test_logged_out_booking_is_rejected():
+    """Posting a booking without a session is rejected rather than crashing"""
+    with app.test_client() as c:
+        resp = c.post(
+            "/book", data={"competition": "Spring Festival", "spots": "1"}
+        )
+        assert resp.status_code == 401
